@@ -58,9 +58,26 @@ class Explosion:
         """Draw the explosion."""
         for particle in self.particles:
             if particle['size'] > 0:
+                # Draw particle with glow effect
+                # Outer glow
+                glow_color = tuple(max(0, c - 100) for c in particle['color'])
+                glow_size = int(particle['size'] * 1.5)
+                if glow_size > 0:
+                    pygame.draw.circle(screen, glow_color, 
+                                     (int(particle['x']), int(particle['y'])), 
+                                     glow_size)
+                
+                # Main particle
                 pygame.draw.circle(screen, particle['color'], 
                                  (int(particle['x']), int(particle['y'])), 
                                  int(particle['size']))
+                
+                # Bright core
+                core_color = tuple(min(255, c + 50) for c in particle['color'])
+                core_size = max(1, int(particle['size'] * 0.5))
+                pygame.draw.circle(screen, core_color, 
+                                 (int(particle['x']), int(particle['y'])), 
+                                 core_size)
 
 class BombExplosion:
     """Large bomb explosion effect for special attacks."""

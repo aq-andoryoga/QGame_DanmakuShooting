@@ -83,17 +83,42 @@ class Enemy:
         """Draw the enemy."""
         # Color based on strength
         if self.strength == EnemyStrength.WEAK:
-            color = (255, 150, 150)  # Light red
+            hull_color = (255, 150, 150)  # Light red
+            engine_color = (200, 100, 100)
         elif self.strength == EnemyStrength.NORMAL:
-            color = (255, 0, 0)      # Red
+            hull_color = (255, 100, 100)  # Red
+            engine_color = (200, 50, 50)
         else:  # STRONG
-            color = (150, 0, 0)      # Dark red
+            hull_color = (200, 50, 50)    # Dark red
+            engine_color = (150, 25, 25)
         
-        pygame.draw.rect(screen, color, self.rect)
+        # Draw enemy spaceship (inverted triangle)
+        center_x = self.rect.centerx
+        center_y = self.rect.centery
         
-        # Draw strength indicator
+        # Main hull
+        hull_points = [
+            (center_x, center_y + 10),      # Bottom point
+            (center_x - 8, center_y - 8),   # Top left
+            (center_x + 8, center_y - 8)    # Top right
+        ]
+        pygame.draw.polygon(screen, hull_color, hull_points)
+        
+        # Engine glow at the back (top)
+        pygame.draw.circle(screen, engine_color, (center_x - 4, center_y - 10), 2)
+        pygame.draw.circle(screen, engine_color, (center_x + 4, center_y - 10), 2)
+        
+        # Cockpit/core
+        cockpit_color = tuple(min(255, c + 30) for c in hull_color)
+        pygame.draw.circle(screen, cockpit_color, (center_x, center_y), 3)
+        
+        # Strength indicator
         if self.strength == EnemyStrength.STRONG:
-            pygame.draw.rect(screen, (255, 255, 0), self.rect, 2)
+            # Draw energy shield effect
+            shield_color = (255, 255, 100, 100)  # Yellow with alpha
+            shield_surface = pygame.Surface((self.rect.width + 6, self.rect.height + 6), pygame.SRCALPHA)
+            pygame.draw.rect(shield_surface, shield_color, shield_surface.get_rect(), 2)
+            screen.blit(shield_surface, (self.rect.x - 3, self.rect.y - 3))
 
 class RadialEnemy(Enemy):
     """Enemy that shoots bullets in a radial pattern."""
@@ -297,4 +322,16 @@ class EnemyBullet:
     
     def draw(self, screen):
         """Draw the bullet."""
+        # Enemy plasma bolt
+        # Draw outer glow
+        glow_radius = self.width // 2 + 2
+        glow_color = tuple(max(0, c - 100) for c in self.color)
+        pygame.draw.circle(screen, glow_color, (int(self.x), int(self.y)), glow_radius)
+        
+        # Draw main bolt
         pygame.draw.circle(screen, self.color, (int(self.x), int(self.y)), self.width // 2)
+        
+        # Draw bright center
+        bright_color = tuple(min(255, c + 50) for c in self.color)
+        center_radius = max(1, self.width // 4)
+        pygame.draw.circle(screen, bright_color, (int(self.x), int(self.y)), center_radius)

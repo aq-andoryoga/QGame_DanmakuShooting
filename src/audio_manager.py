@@ -64,7 +64,7 @@ class AudioManager:
         if not os.path.exists(self.assets_dir):
             print("⚠️ Audio assets directory not found")
             print(f"Expected: {self.assets_dir}")
-            print("Run 'python generate_audio_files.py' to create audio files")
+            print("Audio files will be generated automatically on first game startup")
             return
         
         # Check BGM files
@@ -87,7 +87,7 @@ class AudioManager:
                 print(f"  BGM: {', '.join(missing_bgm)}")
             if missing_sfx:
                 print(f"  SFX: {', '.join(missing_sfx)}")
-            print("Run 'python generate_audio_files.py' to create missing files")
+            print("Audio files will be generated automatically on game startup")
         else:
             print("✅ All audio files found")
     

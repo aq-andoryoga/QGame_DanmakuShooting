@@ -17,6 +17,7 @@ from ranking import RankingManager
 from items import ItemManager
 from audio_manager import audio_manager
 from audio_generator import AudioGenerator, check_audio_files_exist
+from space_background import SpaceBackground
 
 class GameState:
     """Game state enumeration."""
@@ -41,7 +42,7 @@ class Game:
         
         # Initialize display
         self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
-        pygame.display.set_caption("QGamen - 弾幕シューティング")
+        pygame.display.set_caption("QGame - スペースサバイバル")
         
         # Initialize clock
         self.clock = pygame.time.Clock()
@@ -60,11 +61,13 @@ class Game:
         self.ui = None
         self.ranking_manager = RankingManager()
         self.audio_manager = audio_manager
+        self.space_background = SpaceBackground(self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
         
         # Game variables
         self.score = 0
         self.lives = 3
-        self.special_attacks = 6  # ライフ3 × 2回 = 6回
+        self.special_attacks = 2  # 1ライフあたり2個まで
+        self.max_special_per_life = 2  # 1ライフあたりの最大爆弾数
         self.game_over_timer = 0
         self.game_time = 0  # ゲーム経過時間
         
@@ -97,6 +100,8 @@ class Game:
     def init_game(self):
         """Initialize game objects for a new game."""
         self.player = Player(self.GAME_AREA_WIDTH // 2, self.SCREEN_HEIGHT - 100)
+        self.player.set_boundaries(self.GAME_AREA_WIDTH, self.SCREEN_HEIGHT)
+        
         self.enemy_manager = EnemyManager(self.GAME_AREA_WIDTH, self.SCREEN_HEIGHT)
         self.bullet_manager = BulletManager()
         self.effect_manager = EffectManager()
@@ -104,7 +109,7 @@ class Game:
         self.ui = UI(self.GAME_AREA_WIDTH, self.UI_AREA_WIDTH, self.SCREEN_HEIGHT)
         self.score = 0
         self.lives = 3
-        self.special_attacks = 6  # リセット
+        self.special_attacks = 2  # 1ライフあたり2個まで
         self.game_time = 0
         
     def _check_and_generate_audio_files(self):
@@ -218,6 +223,11 @@ class Game:
     
     def update(self):
         """Update game logic."""
+        dt = self.clock.get_time() / 1000.0  # Delta time in seconds
+        
+        # Update space background
+        self.space_background.update(dt)
+        
         if self.state == GameState.PLAYING:
             self.game_time += 1
             
@@ -254,6 +264,9 @@ class Game:
                     self.special_attacks -= 1
                     # Play bomb sound effect
                     self.audio_manager.play_sfx('bomb')
+                    
+                    # Debug: 爆弾使用をコンソールに出力
+                    print(f"爆弾使用！残り: {self.special_attacks}/2")
                     # Play bomb sound effect
                     self.audio_manager.play_sfx('bomb')
             
@@ -339,8 +352,11 @@ class Game:
                     # Play player hit sound effect
                     self.audio_manager.play_sfx('player_hit')
                     
-                    # 修正: 被弾時に必殺技回復
-                    self.special_attacks = self.lives * 2
+                    # 被弾時に爆弾を2個にリセット
+                    self.special_attacks = self.max_special_per_life
+                    
+                    # Debug: 被弾時の爆弾リセットをコンソールに出力
+                    print(f"被弾！爆弾リセット: {self.special_attacks}/2, 残りライフ: {self.lives}")
                     break
         
         # Player vs score items
@@ -353,128 +369,199 @@ class Game:
     
     def draw_menu(self):
         """Draw the main menu."""
-        self.screen.fill(self.BLACK)
+        # Draw space background
+        self.space_background.draw(self.screen)
+        
+        # Draw semi-transparent overlay for better text readability
+        overlay = pygame.Surface((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        overlay.set_alpha(100)
+        overlay.fill(self.BLACK)
+        self.screen.blit(overlay, (0, 0))
         
         # Title
-        title = self.font_manager.render_text("QGamen - 弾幕シューティング", 72, self.WHITE)
+        title = self.font_manager.render_text("QGame - スペースサバイバル", 48, self.WHITE)
         title_rect = title.get_rect(center=(self.SCREEN_WIDTH // 2, 150))
         self.screen.blit(title, title_rect)
         
         # Menu options
-        start_text = self.font_manager.render_text("Enterキーでゲーム開始", 48, self.WHITE)
+        start_text = self.font_manager.render_text("Enterキーでゲーム開始", 32, self.WHITE)
         start_rect = start_text.get_rect(center=(self.SCREEN_WIDTH // 2, 300))
         self.screen.blit(start_text, start_rect)
         
-        ranking_text = self.font_manager.render_text("Rキーでランキング表示", 48, self.WHITE)
-        ranking_rect = ranking_text.get_rect(center=(self.SCREEN_WIDTH // 2, 380))
+        ranking_text = self.font_manager.render_text("Rキーでランキング表示", 32, self.WHITE)
+        ranking_rect = ranking_text.get_rect(center=(self.SCREEN_WIDTH // 2, 350))
         self.screen.blit(ranking_text, ranking_rect)
         
-        quit_text = self.font_manager.render_text("ESCキーで終了", 48, self.WHITE)
-        quit_rect = quit_text.get_rect(center=(self.SCREEN_WIDTH // 2, 460))
+        quit_text = self.font_manager.render_text("ESCキーで終了", 32, self.WHITE)
+        quit_rect = quit_text.get_rect(center=(self.SCREEN_WIDTH // 2, 400))
         self.screen.blit(quit_text, quit_rect)
     
     def draw_game(self):
         """Draw the game screen."""
-        self.screen.fill(self.BLACK)
+        # Fill screen with black first
+        self.screen.fill((0, 0, 0))
         
-        # Draw game area border
-        pygame.draw.line(self.screen, self.WHITE, 
-                        (self.GAME_AREA_WIDTH, 0), 
-                        (self.GAME_AREA_WIDTH, self.SCREEN_HEIGHT), 2)
+        # Create clipping rectangle for game area
+        game_rect = pygame.Rect(0, 0, self.GAME_AREA_WIDTH, self.SCREEN_HEIGHT)
         
-        # Draw game objects
+        # Set clipping area for game objects
+        self.screen.set_clip(game_rect)
+        
+        # Draw space background (clipped to game area)
+        # Create a temporary surface for the game area background
+        game_bg_surface = pygame.Surface((self.GAME_AREA_WIDTH, self.SCREEN_HEIGHT))
+        game_bg_surface.fill((0, 0, 0))  # Black background
+        
+        # Draw stars only in game area
+        for star in self.space_background.stars:
+            if star.x < self.GAME_AREA_WIDTH:  # Only draw stars in game area
+                star.draw(game_bg_surface)
+        
+        # Draw nebulae in game area
+        for nebula in self.space_background.nebulae:
+            if nebula.x < self.GAME_AREA_WIDTH:
+                nebula.draw(game_bg_surface)
+        
+        # Draw planets in game area
+        for planet in self.space_background.planets:
+            if planet.x < self.GAME_AREA_WIDTH:
+                planet.draw(game_bg_surface)
+        
+        self.screen.blit(game_bg_surface, (0, 0))
+        
+        # Draw game objects (clipped to game area)
         self.player.draw(self.screen)
         self.enemy_manager.draw(self.screen)
         self.bullet_manager.draw(self.screen)
         self.effect_manager.draw(self.screen)
         self.item_manager.draw(self.screen)
         
+        # Remove clipping
+        self.screen.set_clip(None)
+        
+        # Draw game area border
+        pygame.draw.line(self.screen, (100, 150, 255), 
+                        (self.GAME_AREA_WIDTH, 0), 
+                        (self.GAME_AREA_WIDTH, self.SCREEN_HEIGHT), 3)
+        
+        # Draw UI area background
+        ui_rect = pygame.Rect(self.GAME_AREA_WIDTH, 0, self.UI_AREA_WIDTH, self.SCREEN_HEIGHT)
+        pygame.draw.rect(self.screen, (10, 10, 30), ui_rect)
+        
         # Draw UI
         self.ui.draw(self.screen, self.score, self.lives, self.special_attacks)
     
     def draw_game_over(self):
         """Draw the game over screen."""
-        self.screen.fill(self.BLACK)
+        # Draw space background
+        self.space_background.draw(self.screen)
+        
+        # Draw semi-transparent overlay
+        overlay = pygame.Surface((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        overlay.set_alpha(150)
+        overlay.fill(self.BLACK)
+        self.screen.blit(overlay, (0, 0))
         
         # Game Over text
-        game_over_text = self.font_manager.render_text("ゲームオーバー", 72, self.RED)
+        game_over_text = self.font_manager.render_text("ゲームオーバー", 48, self.RED)
         game_over_rect = game_over_text.get_rect(center=(self.SCREEN_WIDTH // 2, 200))
         self.screen.blit(game_over_text, game_over_rect)
         
         # Score
-        score_text = self.font_manager.render_text(f"最終スコア: {self.score}", 48, self.WHITE)
-        score_rect = score_text.get_rect(center=(self.SCREEN_WIDTH // 2, 300))
+        score_text = self.font_manager.render_text(f"最終スコア: {self.score}", 32, self.WHITE)
+        score_rect = score_text.get_rect(center=(self.SCREEN_WIDTH // 2, 280))
         self.screen.blit(score_text, score_rect)
         
         # Continue instruction
         if self.ranking_manager.is_high_score(self.score):
-            continue_text = self.font_manager.render_text("Enterキーで名前を入力", 36, self.WHITE)
+            continue_text = self.font_manager.render_text("Enterキーで名前を入力", 28, self.WHITE)
         else:
-            continue_text = self.font_manager.render_text("Enterキーで続行", 36, self.WHITE)
-        continue_rect = continue_text.get_rect(center=(self.SCREEN_WIDTH // 2, 400))
+            continue_text = self.font_manager.render_text("Enterキーで続行", 28, self.WHITE)
+        continue_rect = continue_text.get_rect(center=(self.SCREEN_WIDTH // 2, 350))
         self.screen.blit(continue_text, continue_rect)
     
     def draw_ranking(self):
         """Draw the ranking screen."""
-        self.screen.fill(self.BLACK)
+        # Draw space background
+        self.space_background.draw(self.screen)
+        
+        # Draw semi-transparent overlay
+        overlay = pygame.Surface((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        overlay.set_alpha(120)
+        overlay.fill(self.BLACK)
+        self.screen.blit(overlay, (0, 0))
         
         # Title
-        title = self.font_manager.render_text("ハイスコア", 72, self.WHITE)
+        title = self.font_manager.render_text("ハイスコア", 48, self.WHITE)
         title_rect = title.get_rect(center=(self.SCREEN_WIDTH // 2, 80))
         self.screen.blit(title, title_rect)
         
         # Rankings
         rankings = self.ranking_manager.get_rankings()
         for i, (name, score) in enumerate(rankings):
-            rank_text = self.font_manager.render_text(f"{i+1:2d}位. {name:<10} {score:>6d}点", 48, self.WHITE)
-            rank_rect = rank_text.get_rect(center=(self.SCREEN_WIDTH // 2, 150 + i * 40))
+            rank_text = self.font_manager.render_text(f"{i+1:2d}位. {name:<10} {score:>6d}点", 32, self.WHITE)
+            rank_rect = rank_text.get_rect(center=(self.SCREEN_WIDTH // 2, 150 + i * 35))
             self.screen.blit(rank_text, rank_rect)
         
         # Back instruction
-        back_text = self.font_manager.render_text("EnterまたはESCキーで戻る", 36, self.WHITE)
-        back_rect = back_text.get_rect(center=(self.SCREEN_WIDTH // 2, 600))
+        back_text = self.font_manager.render_text("EnterまたはESCキーで戻る", 28, self.WHITE)
+        back_rect = back_text.get_rect(center=(self.SCREEN_WIDTH // 2, 550))
         self.screen.blit(back_text, back_rect)
     
     def draw_name_input(self):
         """Draw the name input screen."""
-        self.screen.fill(self.BLACK)
+        # Draw space background
+        self.space_background.draw(self.screen)
+        
+        # Draw semi-transparent overlay
+        overlay = pygame.Surface((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        overlay.set_alpha(120)
+        overlay.fill(self.BLACK)
+        self.screen.blit(overlay, (0, 0))
         
         # Title
-        title = self.font_manager.render_text("新記録達成！", 72, self.GREEN)
+        title = self.font_manager.render_text("新記録達成！", 48, self.GREEN)
         title_rect = title.get_rect(center=(self.SCREEN_WIDTH // 2, 150))
         self.screen.blit(title, title_rect)
         
         # Score
-        score_text = self.font_manager.render_text(f"スコア: {self.score}点", 48, self.WHITE)
+        score_text = self.font_manager.render_text(f"スコア: {self.score}点", 32, self.WHITE)
         score_rect = score_text.get_rect(center=(self.SCREEN_WIDTH // 2, 220))
         self.screen.blit(score_text, score_rect)
         
         # Name input
-        name_prompt = self.font_manager.render_text("名前を入力してください:", 48, self.WHITE)
+        name_prompt = self.font_manager.render_text("名前を入力してください:", 32, self.WHITE)
         name_prompt_rect = name_prompt.get_rect(center=(self.SCREEN_WIDTH // 2, 300))
         self.screen.blit(name_prompt, name_prompt_rect)
         
-        name_text = self.font_manager.render_text(self.ranking_manager.current_name + "_", 48, self.WHITE)
+        name_text = self.font_manager.render_text(self.ranking_manager.current_name + "_", 36, self.WHITE)
         name_rect = name_text.get_rect(center=(self.SCREEN_WIDTH // 2, 350))
         self.screen.blit(name_text, name_rect)
         
         # Instructions
-        instruction = self.font_manager.render_text("Enterキーで決定", 36, self.WHITE)
+        instruction = self.font_manager.render_text("Enterキーで決定", 28, self.WHITE)
         instruction_rect = instruction.get_rect(center=(self.SCREEN_WIDTH // 2, 420))
         self.screen.blit(instruction, instruction_rect)
     
     def draw_audio_generation(self):
         """Draw the audio generation screen."""
-        self.screen.fill(self.BLACK)
+        # Draw space background
+        self.space_background.draw(self.screen)
+        
+        # Draw semi-transparent overlay
+        overlay = pygame.Surface((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        overlay.set_alpha(150)
+        overlay.fill(self.BLACK)
+        self.screen.blit(overlay, (0, 0))
         
         # Title
-        title = self.font_manager.render_text("初回セットアップ", 72, self.WHITE)
+        title = self.font_manager.render_text("初回セットアップ", 48, self.WHITE)
         title_rect = title.get_rect(center=(self.SCREEN_WIDTH // 2, 150))
         self.screen.blit(title, title_rect)
         
         # Message
         if self.audio_generation_message:
-            message = self.font_manager.render_text(self.audio_generation_message, 36, self.WHITE)
+            message = self.font_manager.render_text(self.audio_generation_message, 28, self.WHITE)
             message_rect = message.get_rect(center=(self.SCREEN_WIDTH // 2, 250))
             self.screen.blit(message, message_rect)
         
@@ -503,11 +590,11 @@ class Game:
         
         # Instructions
         if self.audio_generation_complete:
-            complete_text = self.font_manager.render_text("完了！Enterキーで続行", 36, self.GREEN)
+            complete_text = self.font_manager.render_text("完了！Enterキーで続行", 28, self.GREEN)
             complete_rect = complete_text.get_rect(center=(self.SCREEN_WIDTH // 2, 450))
             self.screen.blit(complete_text, complete_rect)
         else:
-            wait_text = self.font_manager.render_text("音声ファイルを生成しています...", 24, self.YELLOW)
+            wait_text = self.font_manager.render_text("音声ファイルを生成しています...", 20, self.YELLOW)
             wait_rect = wait_text.get_rect(center=(self.SCREEN_WIDTH // 2, 450))
             self.screen.blit(wait_text, wait_rect)
     

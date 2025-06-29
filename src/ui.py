@@ -28,93 +28,108 @@ class UI:
     
     def draw(self, screen, score, lives, special_attacks):
         """Draw the UI elements."""
-        y_offset = 30
+        # Draw semi-transparent UI background panel (narrower)
+        ui_panel = pygame.Surface((160, screen.get_height()))
+        ui_panel.set_alpha(100)
+        ui_panel.fill((0, 0, 30))  # Dark blue
+        screen.blit(ui_panel, (screen.get_width() - 160, 0))
         
-        # Score
-        score_text = self.font_manager.render_text("スコア", 48, self.WHITE)
-        screen.blit(score_text, (self.ui_x, y_offset))
-        y_offset += 40
+        # Draw panel border
+        pygame.draw.line(screen, (100, 150, 255), 
+                        (screen.get_width() - 160, 0), 
+                        (screen.get_width() - 160, screen.get_height()), 2)
         
-        score_value = self.font_manager.render_text(f"{score:08d}", 36, self.YELLOW)
-        screen.blit(score_value, (self.ui_x, y_offset))
-        y_offset += 70
+        # Adjust UI position for narrower panel
+        ui_x = screen.get_width() - 150
+        y_offset = 20
         
-        # Lives
-        lives_text = self.font_manager.render_text("ライフ", 48, self.WHITE)
-        screen.blit(lives_text, (self.ui_x, y_offset))
-        y_offset += 40
+        # Score with glow effect (smaller font)
+        score_text = self.font_manager.render_text("スコア", 32, (200, 230, 255))
+        # Draw subtle glow
+        glow_text = self.font_manager.render_text("スコア", 32, (100, 150, 200))
+        screen.blit(glow_text, (ui_x + 1, y_offset + 1))
+        screen.blit(score_text, (ui_x, y_offset))
+        y_offset += 35
         
-        # Draw life icons
+        score_value = self.font_manager.render_text(f"{score:08d}", 24, (255, 255, 150))
+        screen.blit(score_value, (ui_x, y_offset))
+        y_offset += 50
+        
+        # Lives with spaceship icons (smaller font)
+        lives_text = self.font_manager.render_text("ライフ", 32, (200, 230, 255))
+        glow_text = self.font_manager.render_text("ライフ", 32, (100, 150, 200))
+        screen.blit(glow_text, (ui_x + 1, y_offset + 1))
+        screen.blit(lives_text, (ui_x, y_offset))
+        y_offset += 35
+        
+        # Draw mini spaceships for lives (smaller icons)
         for i in range(lives):
-            life_x = self.ui_x + i * 35
+            life_x = ui_x + i * 25
             life_y = y_offset
-            # Draw small triangles representing lives
-            points = [
-                (life_x + 12, life_y),      # Top
-                (life_x, life_y + 16),      # Bottom left
-                (life_x + 24, life_y + 16)  # Bottom right
-            ]
-            pygame.draw.polygon(screen, self.GREEN, points)
+            # Draw mini spaceship for each life (smaller)
+            pygame.draw.polygon(screen, (100, 200, 255), [
+                (life_x + 8, life_y),       # Nose
+                (life_x + 2, life_y + 8),   # Left wing
+                (life_x + 14, life_y + 8)   # Right wing
+            ])
+            # Mini engines
+            pygame.draw.circle(screen, (50, 150, 255), (life_x + 5, life_y + 10), 1)
+            pygame.draw.circle(screen, (50, 150, 255), (life_x + 11, life_y + 10), 1)
         
-        y_offset += 70
+        y_offset += 50
         
-        # Special Attacks
-        special_text = self.font_manager.render_text("爆弾", 48, self.WHITE)
-        screen.blit(special_text, (self.ui_x, y_offset))
-        y_offset += 40
-        
-        special_count = self.font_manager.render_text(f"残り: {special_attacks}個", 36, self.MAGENTA)
-        screen.blit(special_count, (self.ui_x, y_offset))
-        y_offset += 30
-        
-        # Draw bomb icons
-        for i in range(min(special_attacks, 6)):  # Show max 6 icons
-            icon_x = self.ui_x + (i % 3) * 25
-            icon_y = y_offset + (i // 3) * 25
-            # Draw bomb icon (circle with fuse)
-            pygame.draw.circle(screen, self.MAGENTA, (icon_x + 8, icon_y + 8), 8)
-            pygame.draw.circle(screen, self.WHITE, (icon_x + 8, icon_y + 8), 6)
-            # Draw fuse
-            pygame.draw.line(screen, self.YELLOW, (icon_x + 12, icon_y + 4), (icon_x + 16, icon_y), 2)
-        
-        y_offset += 80
-        
-        # Controls
-        controls_text = self.font_manager.render_text("操作方法", 36, self.WHITE)
-        screen.blit(controls_text, (self.ui_x, y_offset))
+        # Special Attacks with energy theme (smaller font)
+        special_text = self.font_manager.render_text("爆弾", 32, (200, 230, 255))
+        glow_text = self.font_manager.render_text("爆弾", 32, (100, 150, 200))
+        screen.blit(glow_text, (ui_x + 1, y_offset + 1))
+        screen.blit(special_text, (ui_x, y_offset))
         y_offset += 35
         
-        control_lines = [
-            "矢印キー: 移動",
-            "WASD: 移動", 
-            "スペース: 射撃",
-            "Xキー: 爆弾",
-            "ESC: メニュー"
-        ]
+        special_count = self.font_manager.render_text(f"残り: {special_attacks}/2個", 24, (255, 150, 255))
+        screen.blit(special_count, (ui_x, y_offset))
+        y_offset += 25
         
-        for line in control_lines:
-            control_text = self.font_manager.render_text(line, 24, self.WHITE)
-            screen.blit(control_text, (self.ui_x, y_offset))
-            y_offset += 25
+        # Draw energy bomb icons (smaller)
+        for i in range(min(special_attacks, 2)):  # Show max 2 icons
+            icon_x = ui_x + i * 30
+            icon_y = y_offset
+            
+            # Draw energy bomb (glowing orb) - smaller
+            # Outer glow
+            pygame.draw.circle(screen, (100, 50, 150), (icon_x + 8, icon_y + 8), 10)
+            # Main orb
+            pygame.draw.circle(screen, (255, 100, 255), (icon_x + 8, icon_y + 8), 8)
+            # Inner core
+            pygame.draw.circle(screen, (255, 200, 255), (icon_x + 8, icon_y + 8), 4)
+            # Energy spark
+            pygame.draw.circle(screen, (255, 255, 255), (icon_x + 8, icon_y + 8), 2)
         
-        y_offset += 30
+        y_offset += 60
         
-        # Game info
-        info_text = self.font_manager.render_text("ゲーム情報", 36, self.WHITE)
-        screen.blit(info_text, (self.ui_x, y_offset))
+        # Game info section
+        info_text = self.font_manager.render_text("操作方法", 28, (200, 230, 255))
+        glow_text = self.font_manager.render_text("操作方法", 28, (100, 150, 200))
+        screen.blit(glow_text, (ui_x + 1, y_offset + 1))
+        screen.blit(info_text, (ui_x, y_offset))
         y_offset += 35
         
+        # Control instructions
         info_lines = [
-            "敵を倒して100点",
-            "アイテムで10点",
+            "WASD: 移動",
+            "Space: 射撃",
+            "X: 爆弾",
             "",
+            "ゲームのコツ:",
+            "敵を倒してスコア",
+            "アイテムを回収",
             "弾を避けよう！",
             "被弾後3秒無敵",
-            "爆弾で一掃！"
+            "爆弾は1ライフ2個",
+            "被弾で爆弾回復"
         ]
         
         for line in info_lines:
             if line:  # Skip empty lines
-                info_line = self.font_manager.render_text(line, 24, self.WHITE)
-                screen.blit(info_line, (self.ui_x, y_offset))
+                info_line = self.font_manager.render_text(line, 20, self.WHITE)
+                screen.blit(info_line, (ui_x, y_offset))
             y_offset += 22

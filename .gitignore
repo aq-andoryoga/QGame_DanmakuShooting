@@ -1,12 +1,8 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -20,16 +16,12 @@ parts/
 sdist/
 var/
 wheels/
-pip-wheel-metadata/
-share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
 
 # PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
 
@@ -40,14 +32,12 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
-.nox/
 .coverage
 .coverage.*
 .cache
 nosetests.xml
 coverage.xml
 *.cover
-*.py,cover
 .hypothesis/
 .pytest_cache/
 
@@ -59,7 +49,6 @@ coverage.xml
 *.log
 local_settings.py
 db.sqlite3
-db.sqlite3-journal
 
 # Flask stuff:
 instance/
@@ -77,26 +66,11 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# IPython
-profile_default/
-ipython_config.py
-
 # pyenv
 .python-version
 
-# pipenv
-#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
-#   However, in case of collaboration, if having platform-specific dependencies or dependencies
-#   having no cross-platform support, pipenv may install dependencies that don't work, or not
-#   install all needed dependencies.
-#Pipfile.lock
-
-# PEP 582; used by e.g. github.com/David-OConnor/pyflow
-__pypackages__/
-
-# Celery stuff
+# celery beat schedule file
 celerybeat-schedule
-celerybeat.pid
 
 # SageMath parsed files
 *.sage.py
@@ -125,32 +99,31 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
-# Pyre type checker
-.pyre/
-
 # Game specific
-*.save
-config.ini
-highscores.dat
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+Thumbs.db
 
-# AI Chat and Development Logs - DO NOT COMMIT TO GITHUB
-development_log.txt
-log_helper.py
-chat_log.txt
-conversation_log.txt
-ai_chat_*.txt
-ai_conversation_*.txt
-*.chat
-*.conversation
-*_log.txt
-*_chat.txt
-dev_notes.txt
-development_notes.txt
-test_font.py
-test_audio.py
-generate_audio_files.py
+# Development files (excluding logs)
+test_*.py
+*_test.py
+BGM_STATUS.md
+PUSH_INSTRUCTIONS.md
 
-# Any files containing AI interactions
-*ai_interaction*
-*chat_history*
-*conversation_history*
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

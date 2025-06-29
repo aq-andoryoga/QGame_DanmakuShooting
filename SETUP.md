@@ -1,4 +1,4 @@
-# セットアップガイド
+# QGame - スペースサバイバル セットアップガイド
 
 ## 必要な環境
 
@@ -137,17 +137,25 @@ python generate_audio_files.py
 1. **初回起動時に音声生成が失敗する**
    - 必要なパッケージを確認：
    ```bash
-   pip install numpy scipy
+   pip install pygame numpy
    ```
    - 権限の問題がある場合、assetsディレクトリを手動作成：
    ```bash
    mkdir -p assets/audio/bgm assets/audio/sfx
+   ```
+   - 音声生成テストを実行：
+   ```bash
+   python test_audio_generation.py
    ```
 
 2. **音声生成画面で進行が止まる**
    - Ctrl+Cで中断し、手動で音声ファイルを生成：
    ```bash
    python generate_audio_files.py
+   ```
+   - または音声生成テストを実行：
+   ```bash
+   python test_audio_generation.py
    ```
    - その後ゲームを再起動
 
@@ -219,6 +227,12 @@ python generate_audio_files.py
    音響システムが正しく動作するかテストできます：
    ```bash
    python test_audio.py
+   ```
+
+9. **音声生成テスト**
+   音声ファイル生成機能をテストできます：
+   ```bash
+   python test_audio_generation.py
    ```
 
 ## ファイル構成

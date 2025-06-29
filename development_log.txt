@@ -1,0 +1,110 @@
+QGamen_DanmakuShooting Development Log
+=====================================
+Started: 2025-06-29 07:00:00 UTC
+
+[2025-06-29 07:00:00] PROJECT INITIALIZATION
+- Created project folder: QGamen_DanmakuShooting
+- Generated GitHub repository files (README.md, LICENSE, .gitignore, CONTRIBUTING.md)
+- Set up basic project structure with src/, assets/, tests/, docs/ directories
+- Created main.py entry point and basic Game class
+- Added requirements.txt with pygame>=2.0.0 and numpy>=1.20.0
+
+[2025-06-29 07:00:00] LOGGING SYSTEM SETUP
+- User requested logging of prompts and outputs
+- Creating development log file for tracking all development activities
+- Created log_helper.py utility for structured logging
+- Set up DevLogger class with timestamp functionality
+
+[2025-06-29 07:00:00] USER PROMPT:
+ここからのプロンプトの指示と、その結果出力をログファイルに記録してほしい
+
+[2025-06-29 07:00:00] SYSTEM OUTPUT:
+✅ ログシステムを設定しました！
+
+作成したファイル:
+- development_log.txt: メインの開発ログファイル
+- log_helper.py: ログ記録用のユーティリティクラス
+
+これ以降のプロンプトと出力は全てdevelopment_log.txtに記録されます。
+ログには以下の情報が含まれます:
+- タイムスタンプ
+- ユーザーのプロンプト内容
+- システムの応答内容
+- 開発活動の記録
+
+==================================================
+
+=====================================
+[2025-06-29 07:00:00] USER PROMPT:
+以下の指示にあるゲームを作成して
+
+- ゲームの題材
+  - 弾幕シューティングゲーム
+- 画面サイズ
+  - 1920x1080
+- ゲーム仕様
+  - 自機仕様
+    - 自機のライフは3つ
+    - 被弾をするごとにライフが減る
+    - ライフが0になったらゲームオーバー
+    - 被弾すると中央真ん中の初期位置でリスポーン
+    - リスポーン後3秒ほどは無敵時間
+    - 無敵時間の際は自機が半透明に点滅する
+  - スコア仕様
+    - 敵を倒すとスコアが加算
+    - スコアは100単位で加算
+    - ゲームオーバー時にスコアがランキング圏内にはいると、スコアとニックネームが登録できる
+  - 敵仕様
+    - 敵の弾幕は放射状や円状などの幾何学模様を描く
+    - 自機の弾が当たると倒される
+    - 倒されると、爆発するようなエフェクトを出す
+- 画面仕様
+  - 初期画面
+    - ゲーム開始
+    - 上位10位までのスコアランキング
+  - ゲーム画面仕様
+    - シューティングエリアは画面の左2/3のエリア
+    - 右1/3はスコアやライフなどの情報を表示するエリア
+[2025-06-29 07:00:00] USER PROMPT:
+エラーが起きる前の続きから作成をやり直してほしい
+
+[2025-06-29 07:00:00] SYSTEM OUTPUT:
+エラーが発生する前の状態から続きを作成します。main.pyのimport部分を修正して、ゲームが正常に動作するようにします。
+[2025-06-29 07:00:00] GAME CREATION COMPLETED
+✅ 弾幕シューティングゲーム「QGamen_DanmakuShooting」の作成が完了しました！
+
+📋 実装された機能:
+- 1920x1080の画面サイズ
+- 左2/3がゲームエリア、右1/3がUIエリア
+- 自機システム（ライフ3、被弾時リスポーン、3秒無敵時間）
+- スコアシステム（敵撃破で100点、ランキング機能）
+- 3種類の敵（放射状、円状、螺旋状の弾幕パターン）
+- 爆発エフェクト
+- メニューシステム
+- ハイスコアランキング（上位10位）
+
+🎮 操作方法:
+- 移動: 矢印キー または WASD
+- 射撃: スペースキー
+- メニュー: ESC
+- 決定: Enter
+- ランキング: R (メニューで)
+
+📁 作成されたファイル:
+- main.py: メインエントリーポイント
+- src/game.py: ゲームメインクラス
+- src/player.py: プレイヤーと弾丸
+- src/enemy.py: 敵と敵弾丸
+- src/bullet.py: 弾丸管理システム
+- src/ui.py: ユーザーインターフェース
+- src/effects.py: 視覚効果
+- src/ranking.py: ランキングシステム
+- test_game.py: テストスクリプト
+- SETUP.md: セットアップガイド
+
+⚠️ 注意事項:
+- pygame のインストールが必要: pip install pygame numpy
+- WSL環境では表示に制限がある場合があります
+- Windows環境での実行を推奨
+
+==================================================

@@ -6,16 +6,38 @@ import pygame
 import math
 import random
 
+class EnemyStrength:
+    """Enemy strength levels."""
+    WEAK = 0
+    NORMAL = 1
+    STRONG = 2
+
 class Enemy:
     """Base enemy class."""
     
-    def __init__(self, x, y):
+    def __init__(self, x, y, strength=EnemyStrength.NORMAL):
         """Initialize the enemy."""
         self.x = x
         self.y = y
-        self.width = 30
-        self.height = 30
-        self.speed = 2
+        self.strength = strength
+        
+        # Size and speed based on strength
+        if strength == EnemyStrength.WEAK:
+            self.width = 25
+            self.height = 25
+            self.speed = 3
+            self.hp = 1
+        elif strength == EnemyStrength.NORMAL:
+            self.width = 30
+            self.height = 30
+            self.speed = 2
+            self.hp = 1
+        else:  # STRONG
+            self.width = 40
+            self.height = 40
+            self.speed = 1.5
+            self.hp = 2
+        
         self.rect = pygame.Rect(x - self.width // 2, y - self.height // 2, self.width, self.height)
         self.color = (255, 0, 0)  # Red
         
@@ -44,22 +66,53 @@ class Enemy:
         """Create bullet pattern (to be overridden by subclasses)."""
         return []
     
+    def get_item_drop_count(self):
+        """Get number of items to drop when destroyed."""
+        if self.strength == EnemyStrength.WEAK:
+            return random.randint(1, 2)
+        elif self.strength == EnemyStrength.NORMAL:
+            return random.randint(2, 4)
+        else:  # STRONG
+            return random.randint(4, 7)
+    
     def is_off_screen(self, screen_height):
         """Check if enemy is off screen."""
         return self.y > screen_height + self.height
     
     def draw(self, screen):
         """Draw the enemy."""
-        pygame.draw.rect(screen, self.color, self.rect)
+        # Color based on strength
+        if self.strength == EnemyStrength.WEAK:
+            color = (255, 150, 150)  # Light red
+        elif self.strength == EnemyStrength.NORMAL:
+            color = (255, 0, 0)      # Red
+        else:  # STRONG
+            color = (150, 0, 0)      # Dark red
+        
+        pygame.draw.rect(screen, color, self.rect)
+        
+        # Draw strength indicator
+        if self.strength == EnemyStrength.STRONG:
+            pygame.draw.rect(screen, (255, 255, 0), self.rect, 2)
 
 class RadialEnemy(Enemy):
     """Enemy that shoots bullets in a radial pattern."""
     
-    def __init__(self, x, y):
+    def __init__(self, x, y, strength=EnemyStrength.NORMAL):
         """Initialize the radial enemy."""
-        super().__init__(x, y)
-        self.color = (255, 100, 100)  # Light red
-        self.bullet_count = 8
+        super().__init__(x, y, strength)
+        
+        # Bullet count based on strength
+        if strength == EnemyStrength.WEAK:
+            self.bullet_count = 6
+            self.shoot_interval = 80
+        elif strength == EnemyStrength.NORMAL:
+            self.bullet_count = 8
+            self.shoot_interval = 60
+        else:  # STRONG
+            self.bullet_count = 12
+            self.shoot_interval = 40
+        
         self.angle_offset = 0
     
     def create_bullet_pattern(self):
@@ -71,7 +124,8 @@ class RadialEnemy(Enemy):
             angle = math.radians(i * angle_step + self.angle_offset)
             dx = math.cos(angle)
             dy = math.sin(angle)
-            bullets.append(EnemyBullet(self.x, self.y, dx * 3, dy * 3))
+            speed = 2 + self.strength * 0.5
+            bullets.append(EnemyBullet(self.x, self.y, dx * speed, dy * speed))
         
         self.angle_offset += 10  # Rotate pattern
         return bullets
@@ -79,11 +133,21 @@ class RadialEnemy(Enemy):
 class CircularEnemy(Enemy):
     """Enemy that shoots bullets in a circular wave pattern."""
     
-    def __init__(self, x, y):
+    def __init__(self, x, y, strength=EnemyStrength.NORMAL):
         """Initialize the circular enemy."""
-        super().__init__(x, y)
-        self.color = (255, 150, 150)  # Lighter red
-        self.bullet_count = 12
+        super().__init__(x, y, strength)
+        
+        # Bullet count based on strength
+        if strength == EnemyStrength.WEAK:
+            self.bullet_count = 8
+            self.shoot_interval = 90
+        elif strength == EnemyStrength.NORMAL:
+            self.bullet_count = 12
+            self.shoot_interval = 60
+        else:  # STRONG
+            self.bullet_count = 16
+            self.shoot_interval = 45
+        
         self.wave_timer = 0
     
     def create_bullet_pattern(self):
@@ -95,7 +159,7 @@ class CircularEnemy(Enemy):
             angle = math.radians(i * angle_step + self.wave_timer * 2)
             dx = math.cos(angle)
             dy = math.sin(angle)
-            speed = 2 + math.sin(self.wave_timer * 0.1) * 1
+            speed = 2 + math.sin(self.wave_timer * 0.1) * 1 + self.strength * 0.3
             bullets.append(EnemyBullet(self.x, self.y, dx * speed, dy * speed))
         
         self.wave_timer += 1
@@ -104,23 +168,34 @@ class CircularEnemy(Enemy):
 class SpiralEnemy(Enemy):
     """Enemy that shoots bullets in a spiral pattern."""
     
-    def __init__(self, x, y):
+    def __init__(self, x, y, strength=EnemyStrength.NORMAL):
         """Initialize the spiral enemy."""
-        super().__init__(x, y)
-        self.color = (200, 100, 255)  # Purple
+        super().__init__(x, y, strength)
+        
+        # Shooting frequency based on strength
+        if strength == EnemyStrength.WEAK:
+            self.shoot_interval = 15
+            self.spiral_arms = 2
+        elif strength == EnemyStrength.NORMAL:
+            self.shoot_interval = 10
+            self.spiral_arms = 3
+        else:  # STRONG
+            self.shoot_interval = 8
+            self.spiral_arms = 4
+        
         self.spiral_angle = 0
-        self.shoot_interval = 10  # Shoot more frequently
     
     def create_bullet_pattern(self):
         """Create spiral bullet pattern."""
         bullets = []
         
-        # Create 3 bullets in a spiral
-        for i in range(3):
-            angle = math.radians(self.spiral_angle + i * 120)
+        # Create bullets in spiral arms
+        for i in range(self.spiral_arms):
+            angle = math.radians(self.spiral_angle + i * (360 / self.spiral_arms))
             dx = math.cos(angle)
             dy = math.sin(angle)
-            bullets.append(EnemyBullet(self.x, self.y, dx * 4, dy * 4))
+            speed = 3 + self.strength * 0.5
+            bullets.append(EnemyBullet(self.x, self.y, dx * speed, dy * speed))
         
         self.spiral_angle += 15  # Rotate spiral
         return bullets
@@ -137,7 +212,7 @@ class EnemyManager:
         self.spawn_interval = 120  # frames between spawns
         self.enemy_types = [RadialEnemy, CircularEnemy, SpiralEnemy]
     
-    def update(self):
+    def update(self, game_time):
         """Update all enemies."""
         # Update existing enemies
         for enemy in self.enemies[:]:
@@ -149,14 +224,37 @@ class EnemyManager:
         self.spawn_timer += 1
         if self.spawn_timer >= self.spawn_interval:
             self.spawn_timer = 0
-            self.spawn_enemy()
+            self.spawn_enemy(game_time)
     
-    def spawn_enemy(self):
-        """Spawn a new enemy."""
+    def spawn_enemy(self, game_time):
+        """Spawn a new enemy with strength based on game time."""
         enemy_type = random.choice(self.enemy_types)
         x = random.randint(50, self.game_area_width - 50)
         y = -50
-        enemy = enemy_type(x, y)
+        
+        # Determine strength based on game time
+        time_factor = game_time / 3600  # Convert frames to minutes (60fps * 60s)
+        
+        # Probability weights change over time
+        weak_prob = max(0.5 - time_factor * 0.1, 0.1)
+        normal_prob = max(0.4 - time_factor * 0.05, 0.3)
+        strong_prob = min(0.1 + time_factor * 0.15, 0.6)
+        
+        # Normalize probabilities
+        total = weak_prob + normal_prob + strong_prob
+        weak_prob /= total
+        normal_prob /= total
+        strong_prob /= total
+        
+        rand = random.random()
+        if rand < weak_prob:
+            strength = EnemyStrength.WEAK
+        elif rand < weak_prob + normal_prob:
+            strength = EnemyStrength.NORMAL
+        else:
+            strength = EnemyStrength.STRONG
+        
+        enemy = enemy_type(x, y, strength)
         self.enemies.append(enemy)
     
     def get_bullets(self):
@@ -180,8 +278,8 @@ class EnemyBullet:
         self.y = y
         self.dx = dx
         self.dy = dy
-        self.width = 6
-        self.height = 6
+        self.width = int(6 * 1.5)  # 修正: 弾のサイズを1.5倍に
+        self.height = int(6 * 1.5)  # 修正: 弾のサイズを1.5倍に
         self.rect = pygame.Rect(x - self.width // 2, y - self.height // 2, self.width, self.height)
         self.color = (255, 100, 100)  # Light red
     

@@ -11,8 +11,8 @@ class BulletManager:
         """Initialize the bullet manager."""
         self.player_bullets = []
         self.enemy_bullets = []
-        self.game_area_width = 1920 * 2 // 3
-        self.screen_height = 1080
+        self.game_area_width = 1280 * 2 // 3  # 修正: 新しい画面サイズに対応
+        self.screen_height = 720  # 修正: 新しい画面サイズに対応
     
     def add_player_bullet(self, bullet):
         """Add a player bullet."""

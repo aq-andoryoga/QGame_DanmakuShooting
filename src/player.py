@@ -21,6 +21,10 @@ class Player:
         self.shoot_cooldown = 0
         self.shoot_delay = 5  # frames between shots
         
+        # Special attack
+        self.special_cooldown = 0
+        self.special_delay = 30  # frames between special attacks
+        
         # Invulnerability after being hit
         self.invulnerable = False
         self.invulnerable_timer = 0
@@ -44,9 +48,9 @@ class Player:
             self.y += self.speed
         
         # Keep player within game area (left 2/3 of screen)
-        game_area_width = 1920 * 2 // 3
+        game_area_width = 1280 * 2 // 3  # 修正: 新しい画面サイズに対応
         self.x = max(self.width // 2, min(self.x, game_area_width - self.width // 2))
-        self.y = max(self.height // 2, min(self.y, 1080 - self.height // 2))
+        self.y = max(self.height // 2, min(self.y, 720 - self.height // 2))  # 修正: 新しい画面サイズに対応
         
         # Update rect
         self.rect.centerx = self.x
@@ -55,6 +59,10 @@ class Player:
         # Update shooting cooldown
         if self.shoot_cooldown > 0:
             self.shoot_cooldown -= 1
+        
+        # Update special attack cooldown
+        if self.special_cooldown > 0:
+            self.special_cooldown -= 1
         
         # Update invulnerability
         if self.invulnerable:
@@ -70,12 +78,20 @@ class Player:
             return PlayerBullet(self.x, self.y - self.height // 2)
         return None
     
+    def special_attack(self):
+        """Trigger bomb special attack."""
+        if self.special_cooldown <= 0:
+            self.special_cooldown = self.special_delay
+            # Return bomb position (player's current position)
+            return {'x': self.x, 'y': self.y, 'radius': 200}
+        return None
+    
     def hit(self):
         """Handle player being hit."""
         # Reset position to center
-        game_area_width = 1920 * 2 // 3
+        game_area_width = 1280 * 2 // 3  # 修正: 新しい画面サイズに対応
         self.x = game_area_width // 2
-        self.y = 1080 - 100
+        self.y = 720 - 100  # 修正: 新しい画面サイズに対応
         
         # Start invulnerability
         self.invulnerable = True
@@ -110,8 +126,8 @@ class PlayerBullet:
         """Initialize the bullet."""
         self.x = x
         self.y = y
-        self.width = 4
-        self.height = 8
+        self.width = int(4 * 1.5)  # 修正: 弾のサイズを1.5倍に
+        self.height = int(8 * 1.5)  # 修正: 弾のサイズを1.5倍に
         self.speed = 10
         self.rect = pygame.Rect(x - self.width // 2, y - self.height // 2, self.width, self.height)
         self.color = (255, 255, 0)  # Yellow

@@ -73,10 +73,15 @@ def test_game_logic():
         keys = {pygame.K_RIGHT: True, pygame.K_LEFT: False, pygame.K_UP: False, pygame.K_DOWN: False}
         # Note: This would require pygame to be initialized, so we'll skip actual key testing
         
-        # Test bullet creation
+        # Test player shooting
         bullet = player.shoot()
         if bullet:
             print("✅ Player can shoot bullets")
+        
+        # Test bomb special attack
+        bomb_data = player.special_attack()
+        if bomb_data:
+            print(f"✅ Player can use bomb attack at ({bomb_data['x']}, {bomb_data['y']}) with radius {bomb_data['radius']}")
         
         # Test enemy bullet patterns
         enemy = RadialEnemy(200, 200)
@@ -127,6 +132,7 @@ def main():
         print("\nGame Controls:")
         print("- Arrow Keys or WASD: Move")
         print("- Space: Shoot")
+        print("- X: Bomb Attack")
         print("- ESC: Menu/Quit")
         print("- Enter: Start Game/Confirm")
         print("- R: Rankings (from menu)")

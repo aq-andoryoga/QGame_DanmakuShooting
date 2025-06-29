@@ -132,3 +132,25 @@ dmypy.json
 *.save
 config.ini
 highscores.dat
+
+# AI Chat and Development Logs - DO NOT COMMIT TO GITHUB
+development_log.txt
+log_helper.py
+chat_log.txt
+conversation_log.txt
+ai_chat_*.txt
+ai_conversation_*.txt
+*.chat
+*.conversation
+*_log.txt
+*_chat.txt
+dev_notes.txt
+development_notes.txt
+test_font.py
+test_audio.py
+generate_audio_files.py
+
+# Any files containing AI interactions
+*ai_interaction*
+*chat_history*
+*conversation_history*

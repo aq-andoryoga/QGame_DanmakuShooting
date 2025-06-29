@@ -1,85 +1,161 @@
 # QGamen_DanmakuShooting
 
-A bullet hell shooting game developed with Pygame.
+Pygameで開発された弾幕シューティングゲームです。
 
-## Description
+## ゲーム概要
 
-This is a classic-style bullet hell (danmaku) shooting game where players control a ship and dodge intricate bullet patterns while defeating enemies.
+プレイヤーが自機を操作し、複雑な弾幕パターンを避けながら敵を倒していく、クラシックスタイルの弾幕シューティングゲームです。
 
-## Features
+## 特徴
 
-- Classic bullet hell gameplay
-- Multiple enemy types with unique bullet patterns
-- Power-up system
-- Score tracking
-- Smooth 60 FPS gameplay
+- クラシックな弾幕シューティングゲームプレイ
+- 強さの異なる複数の敵タイプと独特な弾幕パターン
+- 爆弾システム（広範囲攻撃）
+- アイテム収集によるスコアシステム
+- 滑らかな60FPSゲームプレイ
+- 日本語UI対応
+- ハイスコアランキングシステム
+- SF風BGMと効果音
 
-## Requirements
+## 必要環境
 
-- Python 3.7+
-- Pygame 2.0+
+- Python 3.7以上
+- Pygame 2.0以上
 
-## Installation
+## インストール方法
 
-1. Clone this repository:
+1. このリポジトリをクローンします：
 ```bash
 git clone https://github.com/<username>/QGamen_DanmakuShooting.git
 cd QGamen_DanmakuShooting
 ```
 
-2. Install dependencies:
+2. 依存関係をインストールします：
 ```bash
 pip install -r requirements.txt
 ```
 
-## Usage
+## 使用方法
 
-Run the game:
+ゲームを実行します：
 ```bash
 python main.py
 ```
 
-## Controls
+**初回起動時**: 音声ファイルが自動的に生成されます（数分かかる場合があります）
 
-- Arrow Keys: Move player
-- Space: Shoot
-- ESC: Pause/Menu
+## 操作方法
 
-## Development
+- **矢印キー / WASD**: プレイヤー移動
+- **スペースキー**: 射撃
+- **Xキー**: 爆弾（広範囲攻撃）
+- **ESCキー**: ポーズ/メニュー
+- **Enterキー**: 決定/ゲーム開始
+- **Rキー**: ランキング表示（メニューから）
 
-### Project Structure
+## ゲーム機能
+
+### プレイヤーシステム
+- **ライフ**: 3つ
+- **無敵時間**: 被弾後3秒間
+- **爆弾**: ライフ1つにつき2個使用可能（計6個）
+- **爆弾効果**: 広範囲の敵と弾を一掃
+
+### 敵の種類
+- **弱い敵**（薄赤色）: 高速移動、シンプルな弾幕パターン
+- **通常敵**（赤色）: バランスの取れた性能
+- **強い敵**（暗赤色・黄色枠）: 複雑な弾幕パターン、多くのアイテムドロップ
+
+### スコアシステム
+- **敵撃破**: +100点
+- **スコアアイテム**: 1個につき+10点
+- **ハイスコアランキング**: 上位10位まで記録
+
+## 開発情報
+
+### プロジェクト構成
 
 ```
 QGamen_DanmakuShooting/
-├── main.py              # Main game entry point
-├── src/                 # Source code
-│   ├── game.py         # Main game class
-│   ├── player.py       # Player class
-│   ├── enemy.py        # Enemy classes
-│   ├── bullet.py       # Bullet classes
-│   ├── powerup.py      # Power-up system
-│   └── utils.py        # Utility functions
-├── assets/             # Game assets
-│   ├── images/         # Sprite images
-│   ├── sounds/         # Sound effects
-│   └── fonts/          # Font files
-├── tests/              # Unit tests
-└── docs/               # Documentation
+├── main.py              # メインゲームエントリーポイント
+├── src/                 # ソースコード
+│   ├── game.py         # メインゲームクラス
+│   ├── player.py       # プレイヤークラス（爆弾付き）
+│   ├── enemy.py        # 敵クラス（強さレベル付き）
+│   ├── bullet.py       # 弾丸管理
+│   ├── ui.py           # ユーザーインターフェース（日本語）
+│   ├── effects.py      # 視覚効果
+│   ├── items.py        # アイテムシステム
+│   └── ranking.py      # ランキングシステム
+├── assets/             # ゲームアセット
+│   ├── images/         # 画像ファイル
+│   ├── sounds/         # 効果音
+│   └── fonts/          # フォントファイル
+├── tests/              # ユニットテスト
+└── docs/               # ドキュメント
 ```
 
-## Contributing
+## プライバシーとセキュリティ
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+⚠️ **重要な注意**: このプロジェクトでは、開発過程で開発ログやAI対話ファイルが生成される場合があります。これらのファイルには機密情報が含まれる可能性があるため、バージョン管理から自動的に除外されます。
 
-## License
+除外されるファイルやセキュリティ対策の詳細については、[PRIVACY_NOTICE.md](PRIVACY_NOTICE.md)をご覧ください。
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 貢献方法
 
-## Acknowledgments
+1. リポジトリをフォークします
+2. 機能ブランチを作成します（`git checkout -b feature/素晴らしい機能`）
+3. **機密ファイルが含まれていないことを確認します**（`git status`）
+4. 変更をコミットします（`git commit -m '素晴らしい機能を追加'`）
+5. ブランチにプッシュします（`git push origin feature/素晴らしい機能`）
+6. プルリクエストを開きます
 
-- Inspired by classic bullet hell games like Touhou series
-- Built with Pygame community support
+## ライセンス
+
+このプロジェクトはMITライセンスの下でライセンスされています。詳細は[LICENSE](LICENSE)ファイルをご覧ください。
+
+## 謝辞
+
+- 東方シリーズなどのクラシック弾幕ゲームからインスピレーションを得ています
+- Pygameコミュニティのサポートにより構築されています
+
+## ゲーム画面
+
+### メニュー画面
+- ゲーム開始
+- ランキング表示
+- 終了
+
+### ゲーム画面
+- **画面サイズ**: 1280x720
+- **ゲームエリア**: 左2/3（853x720）
+- **情報表示エリア**: 右1/3（427x720）
+  - スコア表示
+  - ライフ表示
+  - 必殺技残り回数
+  - 操作方法
+  - ゲーム情報
+
+### ゲームオーバー画面
+- 最終スコア表示
+- ハイスコア達成時の名前入力
+- メニューへの復帰
+
+## トラブルシューティング
+
+### よくある問題
+
+1. **pygameが見つからない**
+   ```bash
+   pip install pygame
+   ```
+
+2. **画面が表示されない**
+   - WSL環境の場合、X11転送の設定が必要です
+   - Windows環境での直接実行を推奨します
+
+3. **音が出ない**
+   - pygame.mixerの初期化に失敗している可能性があります
+   - オーディオドライバーを確認してください
+
+詳細なセットアップ手順については、[SETUP.md](SETUP.md)をご覧ください。
